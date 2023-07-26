@@ -2,11 +2,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { addDoc, collection, deleteDoc, doc } from "firebase/firestore";
+import { addDoc, collection } from "firebase/firestore";
 import { firebaseDb } from "@/firebase/firebase.config";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../redux/store";
-import { getAllTodos as getAllUserTodos } from "../redux/slices/TodoSlice";
+import {
+  addTodo,
+  deleteTodo,
+  getAllTodos as getAllUserTodos,
+} from "../redux/slices/TodoSlice";
 import { toast } from "react-toastify";
 import { Todo } from "../types";
 import Modal from "../components/Modal";
@@ -33,11 +37,7 @@ export default function Home() {
       return toast.error("Please Enter Value!!");
     }
     try {
-      await addDoc(collection(firebaseDb, "todos"), {
-        uid: user?.uid,
-        content: value,
-        complete: false,
-      });
+      await dispatch(addTodo({ user, value })).unwrap();
       await dispatch(getAllUserTodos(user)).unwrap();
       toast.success("Success");
       setValue("");
@@ -46,26 +46,19 @@ export default function Home() {
     }
   }
 
-  async function deleteTodo(id: string) {
+  async function delete_todo(id: string) {
     if (!user) {
       return toast.error("Please Login!!");
     }
-    try {
-      await deleteDoc(doc(firebaseDb, "todos", id));
-      await dispatch(getAllUserTodos(user)).unwrap();
-    } catch (error: any) {
-      toast.error(error.message || "Something went wrong!");
-    }
+    await dispatch(deleteTodo(id)).unwrap();
+    await dispatch(getAllUserTodos(user)).unwrap();
   }
 
   useEffect(() => {
     if (user?.uid) {
-      dispatch(getAllUserTodos(user))
-        .unwrap()
-        .then((res) => console.log(res))
-        .catch((err) => console.log(err));
+      dispatch(getAllUserTodos(user)).unwrap();
     }
-  }, [user?.uid]);
+  }, [user?.uid, dispatch]);
 
   return (
     <main className="flex flex-col items-center p-10">
@@ -106,7 +99,7 @@ export default function Home() {
                       Edit
                     </button>
                     <button
-                      onClick={() => deleteTodo(ele.id)}
+                      onClick={() => delete_todo(ele.id)}
                       type="button"
                       className="text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
                     >

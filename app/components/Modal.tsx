@@ -6,7 +6,7 @@ import { doc, updateDoc } from "firebase/firestore";
 import { firebaseDb } from "@/firebase/firebase.config";
 import { AppDispatch, RootState } from "../redux/store";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllTodos as getAllUserTodos } from "../redux/slices/TodoSlice";
+import { getAllTodos as getAllUserTodos, updateTodo } from "../redux/slices/TodoSlice";
 import { toast } from "react-toastify";
 
 type Props = {
@@ -16,7 +16,7 @@ type Props = {
 
 export default function Modal({ todo, handleClose }: Props) {
   const user = useSelector((store: RootState) => store.user.user);
-  const [value, setValue] = useState<string | undefined>("");
+  const [value, setValue] = useState<string>("");
   const dispatch = useDispatch<AppDispatch>();
   const onInnerClick: MouseEventHandler<HTMLDivElement> = (e) => {
     e.stopPropagation();
@@ -25,11 +25,7 @@ export default function Modal({ todo, handleClose }: Props) {
     if (!user) {
       return toast.error("Please Login!!");
     }
-    const docRef = doc(firebaseDb, "todos", todo.id);
-    await updateDoc(docRef, {
-      ...todo,
-      content: value,
-    });
+    await dispatch(updateTodo({todo, content: value})).unwrap()
     handleClose();
     await dispatch(getAllUserTodos(user)).unwrap();
   }
@@ -62,11 +58,10 @@ export default function Modal({ todo, handleClose }: Props) {
                 Content
               </label>
               <input
-                type="email"
-                name="email"
-                id="email"
+                name="content"
+                id="content"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                placeholder="name@company.com"
+                placeholder="Enter Content"
                 required
                 onChange={(e) => setValue(e.target.value)}
                 value={value}
