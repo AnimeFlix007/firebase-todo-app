@@ -2,8 +2,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { addDoc, collection } from "firebase/firestore";
-import { firebaseDb } from "@/firebase/firebase.config";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../redux/store";
 import {

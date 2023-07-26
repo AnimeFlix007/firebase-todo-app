@@ -9,7 +9,7 @@ import ToastProvider from "../provider/ToastProvider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Todo App",
+  title: "Butterfly",
   description: "Firebase - Todo App using Next Js",
 };
 
